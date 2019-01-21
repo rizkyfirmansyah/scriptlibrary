@@ -1,0 +1,5 @@
+for %f in (*101062*) do copy /z %f W:\Landsat_1982_1999\Papua
+for %f in (*100062*) do copy /z %f W:\Landsat_1982_1999\Papua
+for %f in (*100063*) do copy /z %f W:\Landsat_1982_1999\Papua
+for %f in (*108060*) do copy /z %f W:\Landsat_1982_1999\Papua
+for %f in (*105059*) do copy /z %f W:\Landsat_1982_1999\Papua

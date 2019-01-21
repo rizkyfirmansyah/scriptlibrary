@@ -1,0 +1,1 @@
+pgsql2shp -f 'D:/DATA/tes.shp' -u postgres -h wri-indonesia.id -P WRIpass18! ptw "SELECT gid, date, edition, ST_Envelope(ST_Buffer(geom, 0.000125)) as shape FROM idn_glad_logging LIMIT 100"

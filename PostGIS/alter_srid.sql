@@ -1,0 +1,1 @@
+ALTER TABLE deforestation_umd ALTER COLUMN geom TYPE geometry(MultiPolygon, 3395) USING ST_Transform(geom, 3395);

@@ -1,0 +1,3 @@
+gsutil -m cp -R gs://burnt-scar-analysis/indonesia/*.gdb .
+
+https://stackoverflow.com/questions/11640637/download-files-and-folders-from-google-storage-bucket-to-a-local-folder

@@ -1,0 +1,57 @@
+kubectl version
+kubectl get nodes
+kubectl run kubernetes-bootcamp --image=docker.io/jocatalin/kubernetes-bootcamp:v1 --port=8080
+kubectl proxy
+
+kubectl get - list resources
+kubectl describe - show detailed information about a resource
+kubectl logs - print the logs from a container in a pod
+kubectl exec - execute a command on a container in a pod
+
+gcloud components install kubectl
+kubectl cluster-info
+
+gcloud auth list
+gcloud config list project
+gcloud config set project
+
+## Moving an instances across zones
+gcloud compute instances move root --destination-zone=asia-southeast1
+
+Check that NGINX is running
+ps auwx | grep nginx
+
+
+Configure PostgreSQL
+vim etc/postgresql/9.3/main/pg_hba.conf
+
+Authentication via SSH
+https://cloud.google.com/compute/docs/instances/connecting-to-instance#standardssh
+
+
+References
+Setting up PostgreSQL
+https://cloud.google.com/community/tutorials/setting-up-postgres
+
+Installing Java 8
+http://tipsonubuntu.com/2016/07/31/install-oracle-java-8-9-ubuntu-16-04-linux-mint-18/
+
+Installing Geoserver 12
+http://docs.geoserver.org/stable/en/user/installation/linux.html
+http://docs.geoserver.org/stable/en/user/production/linuxscript.html Runnning as linux init
+
+Installing Tomcat
+https://www.digitalocean.com/community/tutorials/how-to-install-apache-tomcat-8-on-ubuntu-16-04
+https://devops.profitbricks.com/tutorials/how-to-install-and-configure-tomcat-8-on-ubuntu-1604/
+
+
+Make a script executable
+chmod +x filename.sh
+https://askubuntu.com/questions/229589/how-to-make-a-file-e-g-a-sh-script-executable-so-it-can-be-run-from-termina
+
+Transferring Files to Instances
+https://cloud.google.com/compute/docs/instances/transfer-files
+
+Installing R + Shiny
+https://www.digitalocean.com/community/tutorials/how-to-install-r-on-ubuntu-16-04-2
+https://www.digitalocean.com/community/tutorials/how-to-set-up-shiny-server-on-ubuntu-16-04

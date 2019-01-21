@@ -1,0 +1,7 @@
+// SetNull (in_conditional_raster, in_false_raster_or_constant, {where_clause})
+The expression follows the general form of an SQL expression. An example of a where_clause is "VALUE > 100".
+
+
+SetNull(IsNull("idn_peat_lands.tif"), "idn_degraded_forest.tif")
+
+

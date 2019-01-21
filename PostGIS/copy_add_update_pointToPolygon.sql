@@ -20,6 +20,10 @@ ALTER TABLE glad_2017 ADD COLUMN geom geometry(Polygon, 4326);
 
 ALTER TABLE glad_2017 ADD COLUMN id bigserial;
 
+CREATE INDEX glad_2017_geom_idx
+ON glad_2017
+USING GIST(geom);
+
 UPDATE glad_2017
 SET id = DEFAULT;
 
