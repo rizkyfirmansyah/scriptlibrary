@@ -1,0 +1,17 @@
+gcloud init
+
+gcloud projects list
+
+gcloud compute instances list
+
+gcloud config list compute/region
+
+gcloud config set project wri-cloud-platform
+
+## Moving an instances across zones
+gcloud compute instances move root --destination-zone=asia-southeast1
+
+gcloud compute instances move wri-cloud-platform/root --zone us-east1-b --destination-zone asia-southeast1
+
+
+gcloud compute --project "wri-cloud-platform" ssh --zone "us-east1-b" "illegal-logging"

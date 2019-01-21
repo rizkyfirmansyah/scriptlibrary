@@ -1,0 +1,1 @@
+ogr2ogr -f "PostgreSQL" PG:"host=149.129.220.108 dbname=forest user=postgres password=WRIpass16!" "D:\DATA\GEOSPATIAL\GFW\TCL\TCL_2017.gdb" "fcl_papua" -nln "fcl_papua" -t_srs EPSG:54008

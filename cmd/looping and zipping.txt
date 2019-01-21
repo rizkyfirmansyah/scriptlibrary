@@ -1,0 +1,1 @@
+for /l %x in (49,1,100) do 7z a -tzip "D:/WRI/Research/Mapping Degradation/Sample Data/degradation_split/degradation_%x.zip" "D:/WRI/Research/Mapping Degradation/Sample Data/degradation_split/degradation_%x.*"

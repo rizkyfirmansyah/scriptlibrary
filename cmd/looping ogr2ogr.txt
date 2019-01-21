@@ -1,0 +1,1 @@
+for /l %x in (1,1,10000) do ogr2ogr -f "ESRI Shapefile" "D:/Data/GEOSPATIAL DATA/Ad-Hoc Analysis/NFMS/Data/kml/sample_%x.shp" "D:/Data/GEOSPATIAL DATA/Ad-Hoc Analysis/NFMS/Data/kml/sample%x.kml"

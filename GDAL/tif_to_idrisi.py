@@ -1,0 +1,1 @@
+gdal_translate "LULC_2012.tif" "LULC_2012.rst" -of RST -ot UInt16 -b 1

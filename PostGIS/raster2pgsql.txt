@@ -1,0 +1,5 @@
+# import to sql file
+raster2pgsql -I -C -M "W:\FOREST\fcl_papua.tif" -F -t 100x100 public.fcl_papua > fcl_papua.sql
+
+# import to PostGIS table
+raster2pgsql -I -C -M "W:\FOREST\fcl_papua.tif" -F -t 100x100 public.fcl_papua | psql -h 149.129.220.108 -d forest -U postgres
