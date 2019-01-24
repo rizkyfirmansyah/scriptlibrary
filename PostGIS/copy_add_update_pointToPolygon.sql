@@ -1,3 +1,11 @@
+
+-- Converting points geometry to rectangle polygons having a size of around 30m
+
+CREATE TABLE idn_glad_logging AS (
+SELECT gid, date, edition, ST_Envelope(ST_Buffer(geom, 0.000125)) AS geom
+FROM idn_glad_points
+ );
+
 CREATE TABLE glad_2017 (
 
 	long	double precision,

@@ -1,6 +1,6 @@
 -- ST_Within; Returns TRUE if the geom A is completely inside geom B
 
--- ST_Intersects; Returns TRUE if the geomteries "spatially intersect in 2D". Tolerance is 0.00001 meters
+-- ST_Intersects; Returns TRUE if the geometries "spatially intersect in 2D". Tolerance is 0.00001 meters
 
 SELECT s.* FROM sebaran_or as s
 INNER JOIN tambang as t
