@@ -16,10 +16,12 @@ FROM glad_asia_2016 as g;
 
 ALTER TABLE glad_asia_2016 ADD COLUMN date date;
 
+-- Converting Gregorian Date (day of year): YYYY-DDD to YYYY-MM-DD
+-- ISO format = IYYY-DDD
 UPDATE glad_asia_2016 f
 SET date = g.date
 FROM (
-	SELECT id, to_date('2016-' || julian_day::text, 'IYYY-IDDD') as date
+	SELECT id, to_date('2016-' || julian_day::text, 'YYYY-DDD') as date
 		FROM glad_asia_2016
 ) AS g
 WHERE f.id = g.id;

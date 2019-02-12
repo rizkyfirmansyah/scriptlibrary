@@ -24,3 +24,12 @@ CREATE TABLE illog_2015_west AS (
 	SELECT confidence, year, julian_day, g.geom FROM glad_asia_2015 as g, izin_geom ig
 		WHERE ST_Intersects(g.geom, ig.geom)
 );
+
+CREATE TABLE illog_2015_east AS (
+	WITH izin_geom AS (
+		SELECT geom FROM izin_kh_provinsi i
+		WHERE island IN ('Kalimantan', 'Sulawesi', 'Papua')
+		)
+	SELECT id, confidence, date, julian_day, g.geom FROM glad_asia_2015 as g, izin_geom ig
+		WHERE ST_Intersects(g.geom, ig.geom)
+);
