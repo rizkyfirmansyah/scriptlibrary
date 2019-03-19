@@ -5,3 +5,6 @@ convert -size 1080x1080 -delay 150 -loop 0 *.png kampar_dec_2018.gif
 convert -size 1080x1080 -delay 150 -loop 0 1_en_buton*.png 2_en_buton*.png en_buton_dec_2018.gif
 
 convert -size 1080x1080 -delay 150 -loop 0 1_kolaka*.png 2_kolaka*.png kolaka_dec_2018.gif
+
+
+convert "pg_logo.png" -resize 220 -quality 100 "logo2.png"
