@@ -17,3 +17,8 @@ def redate(a):
         return datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d')
     else:
         return None
+		
+
+# Left as null if you find the number below		
+# -2209161600000 = 12/30/1899
+# change to 12/30/1998

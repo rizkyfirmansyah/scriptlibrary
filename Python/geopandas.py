@@ -76,7 +76,7 @@ hotspotLabel = [
         'April - Juni 2018',
         'Juli - September 2018',
         'Oktober - Desember 2018',
-        'Januari - Maret 2019'
+        'Januari - 12 Maret 2019'
         ]
 
 graphTitle = 'Titik Panas Riau periode 2015 - 12 Maret 2019'
@@ -84,49 +84,47 @@ graphTitle = 'Titik Panas Riau periode 2015 - 12 Maret 2019'
         
 # save the figures
 
-#for idx, val in enumerate(hotspots):
-#    fig = plt.figure(figsize=(10, 10))
-#    ax = fig.add_subplot(111)
-#    
-#    rf = riau_f.plot(ax=ax, color='white', edgecolor='k')
-#    peat_f.plot(ax=ax, color='black')
-#    hotspots[idx].plot(ax=ax, color='#f16521', edgecolor='#ff4f1e')
-#                
-#    #    white peat
-##    rf = riau_f.plot(ax=ax, color='#3a3d42', edgecolor='k')
-##    peat_f.plot(ax=ax, color='#ffffff')
-##    hotspots[0].plot(ax=ax, color='#f16521', edgecolor='#ff4f1e')
-#    
-#    rf.set_axis_off()
-#    
-#    ax.annotate(hotspotLabel[idx], xy=(0.16, .21),
-#        xycoords='figure fraction', horizontalalignment='left', verticalalignment='top', fontsize=14, color='#161616', fontname='Whitney')
-#    plt.title(graphTitle, fontname='Whitney', fontsize=16, loc='center', pad=-10)
+for idx, val in enumerate(hotspots):
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(111)
+    
+    rf = riau_f.plot(ax=ax, color='white', edgecolor='k')
+    peat_f.plot(ax=ax, color='black')
+    hotspots[idx].plot(ax=ax, color='#f16521', edgecolor='#ff4f1e')
+                
+    #    white peat
+#    rf = riau_f.plot(ax=ax, color='#3a3d42', edgecolor='k')
+#    peat_f.plot(ax=ax, color='#ffffff')
+#    hotspots[0].plot(ax=ax, color='#f16521', edgecolor='#ff4f1e')
+    
+    rf.set_axis_off()
+    
+    ax.annotate(hotspotLabel[idx], xy=(0.10, .117),
+        xycoords='figure fraction', horizontalalignment='left', verticalalignment='top', fontsize=14, color='#161616', fontname='Whitney')
+    plt.title(graphTitle, fontname='Whitney', fontsize=16, loc='center', pad=-10)
+
+    plt.savefig('frame'+str(idx)+'.png', dpi=600, bbox_inches='tight')
+    fig.tight_layout()
+    
+    fig.clf()
+    plt.close()
+
+#fig = plt.figure(figsize=(10, 10))
+#ax = fig.add_subplot(111)
 #
-#    plt.savefig('frame'+str(idx)+'.png', dpi=600, bbox_inches='tight')
-#    fig.tight_layout()
-#    
-#    fig.clf()
-#    plt.close()
-
-im = 'D:/DATA/GEOSPATIAL/ADHOC ANALYSIS/Dataviz/Hotspot VIIRS/pg_logo.png'
-img = plt.imread(im)
-fig = plt.figure(figsize=(10, 10))
-ax = fig.add_subplot(111)
-
-rf = riau_f.plot(ax=ax, color='white', edgecolor='k')
-peat_f.plot(ax=ax, color='black')
-hotspots[0].plot(ax=ax, color='#f16521', edgecolor='#ff4f1e')
-            
-rf.set_axis_off()
-
-ax.annotate(hotspotLabel[0], xy=(0.16, .21),
-    xycoords='figure fraction', horizontalalignment='left', verticalalignment='top', fontsize=14, color='#161616', fontname='Whitney')
-plt.title(graphTitle, fontname='Whitney', fontsize=16, loc='center', pad=-10)
-
-ax.imshow()
-plt.savefig('tes.png', dpi=600, bbox_inches='tight')
-fig.tight_layout()
-
+#rf = riau_f.plot(ax=ax, color='white', edgecolor='k')
+#peat_f.plot(ax=ax, color='black')
+#hotspots[0].plot(ax=ax, color='#f16521', edgecolor='#ff4f1e')
+#            
+#rf.set_axis_off()
+#
+#ax.annotate(hotspotLabel[0], xy=(0.10, .117),
+#    xycoords='figure fraction', horizontalalignment='left', verticalalignment='top', fontsize=14, color='#161616', fontname='Whitney')
+#plt.title(graphTitle, fontname='Whitney', fontsize=16, loc='center', pad=-10)
+#
+##ax.imshow()
+#plt.savefig('tes.png', dpi=600, bbox_inches='tight')
+#fig.tight_layout()
+##
 #fig.clf()
 #plt.close()
