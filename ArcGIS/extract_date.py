@@ -1,0 +1,1 @@
+arcpy.time.FormatDate( !date_iup!, 'yyyy')

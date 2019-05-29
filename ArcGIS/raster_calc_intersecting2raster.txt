@@ -3,5 +3,3 @@ The expression follows the general form of an SQL expression. An example of a wh
 
 
 SetNull(IsNull("idn_peat_lands.tif"), "idn_degraded_forest.tif")
-
-
