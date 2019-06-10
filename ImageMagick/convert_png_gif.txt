@@ -8,3 +8,6 @@ convert -size 1080x1080 -delay 150 -loop 0 1_kolaka*.png 2_kolaka*.png kolaka_de
 
 
 convert "pg_logo.png" -resize 220 -quality 100 "logo2.png"
+
+convert -delay 150 -loop 0 1_pasaman*.png 2_pasaman*.png pasaman_mar_2019_#1.gif && 
+convert -delay 150 -loop 0 1_en_pasaman*.png 2_en_pasaman*.png en_pasaman_mar_2019_#1.gif

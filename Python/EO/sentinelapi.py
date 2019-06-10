@@ -85,7 +85,8 @@ def api_products(t1, t2, n):
     sentinel = {0: l1, 1: l2}
 
     return sentinel
-        
+	
+
 def download_metadata(t1, t2, l1 = True, l2 = False):
     """ """
     

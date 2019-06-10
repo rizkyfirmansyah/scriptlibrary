@@ -129,3 +129,19 @@ urban_art.desc = urban_art.desc.str.replace("'", "`")
 #Print the urban_art descriptions again
 print(urban_art.desc)
 
+
+# Construct downtown map
+downtown_map = folium.Map(location = nashville, zoom_start = 15)
+folium.GeoJson(urban_polygon).add_to(downtown_map)
+
+# Create popups inside the loop you built to create the markers
+for row in urban_art.iterrows():
+    row_values = row[1] 
+    location = [row_values['lat'], row_values['lng']]
+    popup = (str(row_values['title']) + ': ' + 
+             str(row_values['desc'])).replace("'", "`")
+    marker = folium.Marker(location = location, popup = popup)
+    marker.add_to(downtown_map)
+
+# Display the map.
+display(downtown_map)
