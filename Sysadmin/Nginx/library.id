@@ -1,0 +1,64 @@
+server {
+    listen 80;
+    server_name library.wri-indonesia.id;
+    return      301 https://$server_name$request_uri;
+
+    if ($host = http) {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen          443 ssl;
+    server_name     library.wri-indonesia.id;
+
+    ssl_certificate /etc/letsencrypt/live/library.wri-indonesia.id/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/library.wri-indonesia.id/privkey.pem; # managed by Certbot
+    ssl_trusted_certificate /etc/letsencrypt/live/library.wri-indonesia.id/chain.pem; # managed by Certbot
+    
+    ssl_protocols             TLSv1 TLSv1.1 TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_ciphers "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384";
+
+    error_log   /var/log/nginx/library.log   warn;
+    root        /var/www/html/library;    
+
+    location / {
+        include                     /etc/nginx/proxy_params;
+        try_files   $uri            /index.php;
+        include                     fastcgi.conf;
+        fastcgi_split_path_info     ^(.+\.php)(/.+)$;
+        fastcgi_intercept_errors    on;
+        fastcgi_index               index.php;
+        fastcgi_param               SCRIPT_FILENAME     /var/www/html/library$fastcgi_script_name;
+        fastcgi_buffer_size         128k;
+        fastcgi_buffers             4 256k;
+        fastcgi_busy_buffers_size   256k;
+    }
+
+    location ~ \.php$ {
+        include                     snippets/fastcgi-php.conf;
+        fastcgi_pass                127.0.0.1:9001;
+    }
+    
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|html|woff|woff2|ttf|svg|eot|otf)$ {
+        add_header "Access-Control-Allow-Origin" "*";
+        expires 1M;
+        access_log off;
+        add_header Cache-Control "public";
+    }
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    #
+    location ~ /\.ht {
+        deny  all;
+    }
+}
