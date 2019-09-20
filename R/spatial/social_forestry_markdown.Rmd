@@ -1,0 +1,231 @@
+---
+title: How Social Forestry Schemes Combat The Climate Crisis. Are they effective policy
+  in reducing deforestation so as reducing emissions?
+author: "Rizky Firmansyah"
+date: "6/28/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(DBI)
+library(RPostgreSQL)
+db <- dbConnect(RPostgres::Postgres(), host='wri-indonesia.id', dbname='social_forestry', user='postgres', password='WRIpass18!')
+knitr::opts_chunk$set(echo = TRUE, connection = "db")
+```
+
+## R Markdown
+
+Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+
+```{r include=FALSE}
+library(ggplot2)
+library(dplyr)
+library(sqldf)
+library(ggplot2)
+library(reshape2)
+#library(xlsx)
+library(sf)
+library(DT)
+library(gridExtra)
+library(stringr)
+```
+
+## Aggregate the tree cover loss by its province (Tree Cover Loss before the establishment of permit)
+```{r echo=F}
+lb_query <- "SELECT province, sf_class, type, forest, year, round(CAST(avg(s.total_ha) as numeric), 3) as avg, array_to_string(array_agg(loss_year ORDER BY loss_year), ', ') as loss_year
+FROM (
+      SELECT forest, province, sf_class, type, year, gridcode + 2000 AS loss_year, loss_status, sum(ha) as total_ha
+      FROM idn_adm2_forestloss_sf_loss
+      WHERE loss_status = 'before'
+      GROUP BY 1, 2, 3, 4, 5, 6, 7) AS s
+GROUP BY 1, 2, 3, 4, 5
+HAVING round(CAST(avg(s.total_ha) as numeric), 3) > 0
+ORDER BY 1, 5, 4;"
+
+loss_before <- dbGetQuery(db, statement = lb_query)
+colnames(loss_before) <- c("Province", "Forest Area", "Social Forestry (SF) Scheme", "Forest Type", "SF Establishment Year", "Average Forest Loss (Ha)", "Loss Year (Before)")
+datatable(head(loss_before, n = nrow(loss_before)))
+
+```
+
+## Aggregate the tree cover loss by its province (Tree Cover Loss after the establishment of permit)
+```{r echo=F}
+la_query <- "SELECT province, sf_class, type, forest, year, round(CAST(avg(s.total_ha) as numeric), 3) as avg, array_to_string(array_agg(loss_year ORDER BY loss_year), ', ') as loss_year
+FROM (
+      SELECT forest, province, sf_class, type, year, gridcode + 2000 AS loss_year, loss_status, sum(ha) as total_ha
+      FROM idn_adm2_forestloss_sf_loss
+      WHERE loss_status = 'after'
+      GROUP BY 1, 2, 3, 4, 5, 6, 7) AS s
+GROUP BY 1, 2, 3, 4, 5
+HAVING round(CAST(avg(s.total_ha) as numeric), 3) > 0
+ORDER BY 1, 5, 4;"
+
+loss_after <- dbGetQuery(db, statement = la_query)
+#colnames(loss_after) <- c("Province", "Forest Area", "Social Forestry (SF) Scheme", "Forest Type", "SF Establishment Year", "Average Tree Loss (Ha)", "Loss Year (After)")
+colnames(loss_after) <- c("Provinsi", "Forest Area", "Social Forestry (SF) Scheme", "Forest Type", "SF Establishment Year", "Average Tree Loss (Ha)", "Loss Year (After)")
+datatable(head(loss_after, n = nrow(loss_after)))
+
+```
+
+
+## Disaggregate the tree cover loss by its social forestry schemes
+```{r echo=F}
+query <- "SELECT i1.sf_id, i1.sf_name, i1.province, i1.sf_class, i1.type, i1.sk_year, i1.avg_ha_before, i1.loss_gc_before, i2.avg_ha_after, i2.loss_gc_after
+FROM (
+	SELECT sf_id, sf_name, province, sf_class, type, year as sk_year, round(CAST(sum(ha) / count(distinct(gridcode)) as numeric), 3) as avg_ha_before, array_to_string(array_agg(DISTINCT(gridcode + 2000)), ', ') as loss_gc_before
+      FROM idn_adm2_fcl_fa_loss
+      WHERE loss_status = 'before'
+      GROUP BY 1, 2, 3, 4, 5, 6
+			HAVING round(CAST(sum(ha) / count(distinct(gridcode)) as numeric), 3) > 0
+			ORDER BY sf_id
+			) i1
+INNER JOIN (
+	SELECT sf_id, sf_name, province, sf_class, type, year, round(CAST(sum(ha) / count(distinct(gridcode)) as numeric), 3) as avg_ha_after, array_to_string(array_agg(DISTINCT(gridcode + 2000)), ', ') as loss_gc_after
+      FROM idn_adm2_fcl_fa_loss
+      WHERE loss_status = 'after'
+      GROUP BY 1, 2, 3, 4, 5, 6
+			HAVING round(CAST(sum(ha) / count(distinct(gridcode)) as numeric), 3) > 0
+			ORDER BY sf_id
+			) i2
+ON (i1.sf_id = i2.sf_id and i1.sf_class = i2.sf_class)
+ORDER BY 3, 4, 6;"
+
+loss_per_sf <- dbGetQuery(db, statement = query)
+colnames(loss_per_sf) <- c("ID", "Kelompok/Nama Perhutanan Sosial", "Provinsi", "Kawasan Hutan", "Skema Perhutanan Sosial", "Tahun PS", "Rata-Rata Kehilangan Tutupan Pohon (Ha) Sebelum Izin PS", "Tahun Kehilangan Tutupan Pohon Sebelum Izin PS", "Rata-Rata Kehilangan Tutupan Pohon (Ha) Setelah Izin PS", "Tahun Kehilangan Tutupan Pohon Setelah Izin PS")
+datatable(head(loss_per_sf, n = nrow(loss_per_sf)), options = list(pageLength = 5))
+
+```
+
+```{r echo=F}
+colnames(loss_before) <- c("province", "forest_area", "sf_type", "sf_year", "forest_type", "loss_ha", "loss_year")
+colnames(loss_after) <- c("province", "forest_area", "sf_type", "sf_year", "forest_type", "loss_ha", "loss_year")
+
+loss_before$sf_type_en <- ifelse(loss_before$sf_type == 'Hutan Adat', 'Customary Forest',
+                                 ifelse(loss_before$sf_type == 'Hutan Desa', 'Village Forest',
+                                        ifelse(loss_before$sf_type == 'Hutan Kemasyarakatan', 'Community Forest',
+                                               ifelse(loss_before$sf_type == 'Hutan Tanaman Rakyat', "People's Plantation Forest",
+                                                      ifelse(loss_before$sf_type == 'Izin Pemanfaatan Hutan Perhutanan Sosial', 'Perhutani-based Social Forestry',
+                                                             ifelse(loss_before$sf_type == 'Pengakuan dan Perlindungan Kemitraan Kehutanan', 'Forest Partnership', '')
+                                                                )))))
+
+loss_before$forest_area_en <- ifelse(loss_before$forest_area == 'Hutan Produksi', 'Permanent Production Forest',
+                                     ifelse(loss_before$forest_area == 'Hutan Produksi Terbatas', 'Limited Production Forest',
+                                            ifelse(loss_before$forest_area == 'Hutan Produksi Konversi', 'Convertible Production Forest',
+                                                   ifelse(loss_before$forest_area == 'Hutan Konservasi', "Conservation Forest",
+                                                          ifelse(loss_before$forest_area == 'Hutan Lindung', 'Protected Forest',
+                                                                 ifelse(loss_before$forest_area == 'Areal Penggunaan Lain', 'Non Forest', '')
+                                                          )))))
+
+loss_after$forest_area_en <- ifelse(loss_after$forest_area == 'Hutan Produksi', 'Permanent Production Forest',
+                                    ifelse(loss_after$forest_area == 'Hutan Produksi Terbatas', 'Limited Production Forest',
+                                           ifelse(loss_after$forest_area == 'Hutan Produksi Konversi', 'Convertible Production Forest',
+                                                  ifelse(loss_after$forest_area == 'Hutan Konservasi', "Conservation Forest",
+                                                         ifelse(loss_after$forest_area == 'Hutan Lindung', 'Protected Forest',
+                                                                ifelse(loss_after$forest_area == 'Areal Penggunaan Lain', 'Non Forest', '')
+                                                         )))))
+
+loss_after$sf_type_en <- ifelse(loss_after$sf_type == 'Hutan Adat', 'Customary Forest',
+                                ifelse(loss_after$sf_type == 'Hutan Desa', 'Village Forest',
+                                       ifelse(loss_after$sf_type == 'Hutan Kemasyarakatan', 'Community Forest',
+                                              ifelse(loss_after$sf_type == 'Hutan Tanaman Rakyat', "People's Plantation Forest",
+                                                     ifelse(loss_after$sf_type == 'Izin Pemanfaatan Hutan Perhutanan Sosial', 'Perhutani-based Social Forestry',
+                                                            ifelse(loss_after$sf_type == 'Pengakuan dan Perlindungan Kemitraan Kehutanan', 'Forest Partnership', '')
+                                                     )))))
+
+title_before <- "A boxplot showing the average tree cover loss\nfrom 2001 - the permit per schemes"
+title_after <- "A boxplot showing the average tree cover loss\nfrom the permit per schemes - 2018"
+subtitle_before <- "2001 - the permit per schemes"
+subtitle_after <- "the permit per schemes - 2018"
+bottom_title <- 'Average Tree Cover Loss (Ha)'
+top_title <- 'A boxplot showing the average tree cover loss'
+
+boxplot_sf <- function(var, x = var$sf_type_en, y = var$loss_ha, fill = var$sf_type_en, title = '') {
+  ggplot() +
+  geom_boxplot(data = var, aes(x = x, y = y, fill = fill)) +
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+  geom_jitter(width = 0.1, alpha = 0.2) +
+  labs(title = title) +
+  theme_bw(base_size = 11) +
+  theme(legend.position = 'none', axis.title.y = element_blank(), axis.title.x = element_blank()) +
+  scale_fill_manual(values=c("Customary Forest" = "#ef63ff","Village Forest" = "#4f76f7","Community Forest" = "#52c4c4","People's Plantation Forest" = "#ffc847","Perhutani-based Social Forestry" = "#7cff5e","Forest Partnership" = "#ff5c21")) +
+  coord_flip()
+}
+
+box_loss_before <- boxplot_sf(loss_before, title = subtitle_before) + ylim(0, 600)
+box_loss_after <- boxplot_sf(loss_after, title = subtitle_after) + theme(axis.ticks.y = element_blank(), axis.text.y = element_blank())
+
+## boxplot filtered
+
+boxplot_sf_filtered <- function(var, title = '', f = 'Hutan Lindung') {
+  ggplot() +
+    geom_boxplot(data = var[var$forest_area %in% f, ], aes(x = sf_type_en, y = loss_ha, fill = sf_type_en)) +
+    scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) +
+    geom_jitter(width = 0.1, alpha = 0.2) +
+    labs(title = title, fill = 'Social Forestry') +
+    theme_bw(base_size = 9) +
+    theme(legend.position = 'none', axis.title.y = element_blank(), axis.title.x = element_blank()) +
+    scale_fill_manual(values=c("Customary Forest" = "#ef63ff","Village Forest" = "#4f76f7","Community Forest" = "#52c4c4","People's Plantation Forest" = "#ffc847","Perhutani-based Social Forestry" = "#7cff5e","Forest Partnership" = "#ff5c21")) +
+    coord_flip()
+}
+
+box_loss_before_hl <- boxplot_sf_filtered(loss_before, title = subtitle_before, f = 'Hutan Lindung')
+box_loss_after_hl <- boxplot_sf_filtered(loss_after, title = subtitle_after, f = 'Hutan Lindung') + scale_y_continuous(position = "top")
+
+box_loss_before_hk <- boxplot_sf_filtered(loss_before, title = subtitle_before, f = 'Hutan Konservasi')
+box_loss_after_hk <- boxplot_sf_filtered(loss_after, title = subtitle_after, f = 'Hutan Konservasi')
+
+box_loss_before_apl <- boxplot_sf_filtered(loss_before, title = subtitle_before, f = 'Areal Penggunaan Lain')
+box_loss_after_apl <- boxplot_sf_filtered(loss_after, title = subtitle_after, f = 'Areal Penggunaan Lain') + theme(axis.ticks.y = element_blank(), axis.text.y = element_blank())
+
+boxplot_sf_hp <- function(var, title = title_before) {
+  var %>%
+    filter(forest_area %in% c('Hutan Produksi', 'Hutan Produksi Terbatas', 'Hutan Produksi Konversi')) %>%
+    ggplot(aes(x = sf_type_en, y = loss_ha, fill = sf_type_en)) +
+    geom_boxplot() +
+    geom_jitter(width = 0.1, alpha = 0.2) +
+    labs(title = title, fill = "Social Forestry") +
+    ylab('Average Tree Cover Loss (Ha)') +
+    xlab('Social Forestry Schemes') +
+    theme_bw(base_size = 11) +
+    theme(legend.position = 'bottom', axis.title.y = element_blank(), axis.ticks.x = element_blank(), axis.text.x = element_blank()) +
+    scale_fill_manual(values=c("Customary Forest" = "#ef63ff","Village Forest" = "#4f76f7","Community Forest" = "#52c4c4","People's Plantation Forest" = "#ffc847","Perhutani-based Social Forestry" = "#7cff5e","Forest Partnership" = "#ff5c21")) +
+    facet_wrap(~forest_area_en, ncol = 3)
+}
+
+box_loss_before_hp <- boxplot_sf_hp(loss_before, title = paste(title_before, 'within Production Forest', sep = " "))
+box_loss_after_hp <- boxplot_sf_hp(loss_after, title = paste(title_after, 'within Production Forest', sep = " "))
+
+
+```
+## A Boxplot grouped by social forestry
+
+#### Average Tree Cover Loss within All Forest Area
+``` {r echo=F}
+grid.arrange(box_loss_before, box_loss_after, nrow = 1, widths = c(7, 5), top = paste0(top_title, ' within all Forest area'), bottom = bottom_title)
+```
+
+#### Average Tree Cover Loss within Protected Forest
+``` {r echo=F}
+grid.arrange(box_loss_before_hl, box_loss_after_hl, nrow = 1, widths = c(7, 5), top = paste0(top_title, ' within Protected Forest'), bottom = bottom_title)
+```
+
+#### Average Tree Cover Loss within Conservation Forest
+``` {r echo=F}
+grid.arrange(box_loss_before_hk, box_loss_after_hk, nrow = 1, widths = c(7, 5), top = paste0(top_title, ' within Conservation Forest'), bottom = bottom_title)
+```
+
+#### Average Tree Cover Loss within Production Forest (Before Permit)
+``` {r echo=F}
+box_loss_before_hp
+```
+
+#### Average Tree Cover Loss within Production Forest (After Permit)
+``` {r echo=F}
+box_loss_after_hp
+```
+
+#### Average Tree Cover Loss within Non Forest
+``` {r echo=F}
+grid.arrange(box_loss_before_apl, box_loss_after_apl, nrow = 1, widths = c(7, 5), top = paste0(top_title, ' within Non Forest'), bottom = bottom_title)
+```
+

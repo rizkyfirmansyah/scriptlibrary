@@ -6,11 +6,11 @@ import os
 import time
 
 # set your working directory
-path = 'W:/DEM'
+path = 'E:/DEM'
 os.chdir(path)
 
 # specify your file path containing list of filename to be downloaded
-file = 'list_kalimantan.txt'
+file = 'list_papua.txt'
 
 connection_timeout = 30 # in seconds
 # read every line within file
@@ -26,7 +26,7 @@ i = 0
 while i < len(content):
     try:
         # Write data to files with looping
-        url = 'http://tides.big.go.id/DEMNAS/files/DEMNAS_'
+        url = 'http://tides.big.go.id/DEMNAS/download.php?download_file=DEMNAS_'
         r = requests.get(url + content[i] + '_v1.0.tif', stream = True, headers= headers) # create http response object
             
         # checking total sizes in byte
@@ -36,7 +36,7 @@ while i < len(content):
         wrote = 0
         url_file = url + content[i] + '_v1.0.tif'
         
-        if r.status_code != 404:
+        if r.status_code != 404 and not os.path.exists(os.path.join(path, content[i])):
             with open(content[i], 'wb') as f:
                 for data in tqdm(r.iter_content(block_size), total = math.ceil(total_size / block_size), unit = 'KB', unit_scale = True):
                     wrote = wrote + len(data)

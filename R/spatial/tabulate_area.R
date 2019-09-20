@@ -26,12 +26,6 @@ tp <- plot(tcl.raw, axes=FALSE)
 sf_list <- c("Hutan Adat", "Hutan Desa", "Hutan Kemasyarakatan", "Hutan Tanaman Rakyat", "Izin Pemanfaatan Hutan Perhutanan Sosial", "Pengakuan dan Perlindungan Kemitraan Kehutanan")
 sf_adm2 <- readOGR(dsn=path, layer="idn_sf_adm2")
 
-sf_adm2.ha <- sf_adm2[sf_adm2$type %in% sf_list[1],]
-sf_adm2.hd <- sf_adm2[sf_adm2$type %in% sf_list[2],]
-sf_adm2.hkm <- sf_adm2[sf_adm2$type %in% sf_list[3],]
-sf_adm2.htr <- sf_adm2[sf_adm2$type %in% sf_list[4],]
-sf_adm2.iphps <- sf_adm2[sf_adm2$type %in% sf_list[5],]
-sf_adm2.kk <- sf_adm2[sf_adm2$type %in% sf_list[6],]
 
 # Plot the Social Forestry Extent
 #sp <- ggplot() + geom_polygon(data=sf_adm2, aes(x=long, y=lat, group=group, fill=factor(type)),
@@ -48,12 +42,6 @@ sf_adm2.kk <- sf_adm2[sf_adm2$type %in% sf_list[6],]
     #coord_equal()
 #}
 
-#sf_adm2.ha.plot <- baseMap(sf_adm2.ha, title=sf_list[1])
-#sf_adm2.hd.plot <- baseMap(sf_adm2.hd, title=sf_list[2])
-#sf_adm2.hkm.plot <- baseMap(sf_adm2.hkm, title=sf_list[3])
-#sf_adm2.htr.plot <- baseMap(sf_adm2.htr, title=sf_list[4])
-#sf_adm2.iphps.plot <- baseMap(sf_adm2.iphps, title=sf_list[5])
-#sf_adm2.kk.plot <- baseMap(sf_adm2.kk, title=sf_list[6])
 
 # Function to tabulate tcl by region
 tabFunc <- function(i, extracted, region, regname) {
@@ -62,13 +50,15 @@ tabFunc <- function(i, extracted, region, regname) {
   return(data)
 }
 
-populatePerCategory <- function(d) {
+## need to revised the filtering year
+populate_per_category <- function(t, c) {
     
+    filtered_data <- subset(sf_adm2, (type == t & category == c))
     ## Extract tcl valeus by region social forestry schemes and tabulate
-    ext.ha <- extract(tcl.raw, d, method = 'simple')
+    ext.ha <- extract(tcl.raw, filtered_data, method = 'simple')
 
     # run through each region and compute a table of the count of raster cells by TCL. Produces a list
-    tabs.ha <- lapply(seq(ext.ha), tabFunc, ext.ha, d, 'KABKOT')
+    tabs.ha <- lapply(seq(ext.ha), tabFunc, ext.ha, filtered_data, 'KABKOT')
 
     # Assemble into one dataframe
     tabs.ha <- do.call('rbind', tabs.ha)
@@ -77,7 +67,7 @@ populatePerCategory <- function(d) {
     tabs.ha$Var1 <- as.numeric(tabs.ha$Var1)
     tabs.ha %>% filter(tabs.ha$Var1 > 0, tabs.ha$Var1 < 20)
 
-    sf <- d[!d$year %in% 0,]
+    sf <- filtered_data[!filtered_data$year %in% 0,]
     return(sf)
 }
 
